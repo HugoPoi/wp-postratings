@@ -90,39 +90,31 @@ function the_ratings($start_tag = 'div', $custom_id = 0, $display = true) {
 		$loading = '';
 	}
 	// Check To See Whether User Has Voted
-	$user_voted = check_rated($ratings_id);
+  $user_voted = check_rated($ratings_id);
 	// HTML Attributes
 	if( is_single() || is_page() ) {
 		$itemtype = apply_filters('wp_postratings_schema_itemtype', 'itemscope itemtype="http://schema.org/Article"');
 		$attributes = 'id="post-ratings-'.$ratings_id.'" class="post-ratings" '.$itemtype;
 	} else {
 		$attributes = 'id="post-ratings-'.$ratings_id.'" class="post-ratings"';
-	}
+  }
+
 	// If User Voted Or Is Not Allowed To Rate
-	if($user_voted) {
-		if(!$display) {
-			return "<$start_tag $attributes>".the_ratings_results($ratings_id).'</'.$start_tag.'>'.$loading;
-		} else {
-			echo "<$start_tag $attributes>".the_ratings_results($ratings_id).'</'.$start_tag.'>'.$loading;
-			return;
-		}
+  if($user_voted) {
+    $output = "<$start_tag $attributes>".the_ratings_results($ratings_id).'</'.$start_tag.'>';
 	// If User Is Not Allowed To Rate
 	} else if(!check_allowtorate()) {
-		if(!$display) {
-			return "<$start_tag $attributes>".the_ratings_results($ratings_id, 0, 0, 0, 1).'</'.$start_tag.'>'.$loading;
-		} else {
-			echo "<$start_tag $attributes>".the_ratings_results($ratings_id, 0, 0, 0, 1).'</'.$start_tag.'>'.$loading;
-			return;
-		}
+    $output = "<$start_tag $attributes>".the_ratings_results($ratings_id, 0, 0, 0, 1).'</'.$start_tag.'>';
 	// If User Has Not Voted
 	} else {
-		if(!$display) {
-			return "<$start_tag $attributes data-nonce=\"".wp_create_nonce('postratings_'.$ratings_id.'-nonce')."\">".the_ratings_vote($ratings_id).'</'.$start_tag.'>'.$loading;
-		} else {
-			echo "<$start_tag $attributes data-nonce=\"".wp_create_nonce('postratings_'.$ratings_id.'-nonce')."\">".the_ratings_vote($ratings_id).'</'.$start_tag.'>'.$loading;
-			return;
-		}
-	}
+		$output = "<$start_tag $attributes data-nonce=\"".wp_create_nonce('postratings_'.$ratings_id.'-nonce')."\">".the_ratings_vote($ratings_id).'</'.$start_tag.'>';
+  }
+
+  if($display){
+    echo $output.$loading;
+  }else{
+    return $output.$loading;
+  }
 }
 
 
