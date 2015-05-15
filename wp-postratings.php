@@ -182,6 +182,50 @@ function the_ratings_vote($post_id, $new_user = 0, $new_score = 0, $new_average 
     }
 }
 
+### Function: Return needed vars to make a custom rating box (with jQuery raty for exemple)
+function get_the_ratings($custom_id = 0) {
+	global $id;
+	// Allow Custom ID
+	if(intval($custom_id) > 0) {
+		$ratings_id = $custom_id;
+	} else {
+		// If Global $id is 0, Get The Loop Post ID
+		if($id === 0) {
+			$ratings_id = get_the_ID();
+		} elseif (is_null($id)) {
+			global $post;
+			$ratings_id = $post->ID;
+		} else {
+			$ratings_id = $id;
+		}
+	}
+
+  $post_ratings_data = get_post_custom($ratings_id);
+
+  $post_ratings_users = is_array($post_ratings_data) && array_key_exists('ratings_users', $post_ratings_data) ? intval($post_ratings_data['ratings_users'][0]) : 0;
+  $post_ratings_score = is_array($post_ratings_data) && array_key_exists('ratings_score', $post_ratings_data) ? intval($post_ratings_data['ratings_score'][0]) : 0;
+  $post_ratings_average = is_array($post_ratings_data) && array_key_exists('ratings_average', $post_ratings_data) ? floatval($post_ratings_data['ratings_average'][0]) : 0;
+
+	// Check To See Whether User Has Voted
+  $user_voted = check_rated($ratings_id);
+
+  $output = array(
+    'user_voted' => (bool) $user_voted,
+    'user_id' => $user_voted,
+    'user_rating' => get_rating_user($ratings_id),
+    'allow_to_rate' => false,
+    'ratings_users' => $post_ratings_users,
+    'ratings_score' => $post_ratings_score,
+    'ratings_average' => $post_ratings_average,
+    'rating_max' => intval(get_option('postratings_max'))
+  );
+
+  if(!$user_voted && check_allowtorate()){
+    $output['allow_to_rate'] = true;
+    $output['rating_nonce'] = wp_create_nonce('postratings_'.$ratings_id.'-nonce');
+  }
+  return $output;
+}
 
 ### Function: Check Who Is Allow To Rate
 function check_allowtorate() {
@@ -275,6 +319,28 @@ function check_rated_username($post_id) {
     $get_rated = $wpdb->get_var( $wpdb->prepare( "SELECT rating_userid FROM {$wpdb->ratings} WHERE rating_postid = %d AND rating_userid = %d", $post_id, $user_ID ) );
     // 0: False | > 0: True
     return intval( $get_rated);
+}
+
+
+### Function: Get rating for a user
+function get_rating_user($post_id = false) {
+	global $wpdb, $user_ID;
+	if(!is_user_logged_in()) {
+		return 0;
+  }
+  if($post_id !== false){
+    // Get rating with userid else return 0
+    $get_rating = $wpdb->get_var( $wpdb->prepare( "SELECT rating_rating FROM {$wpdb->ratings} WHERE rating_postid = %d AND rating_userid = %d", $post_id, $user_ID ) );
+    // int rating
+    return intval( $get_rating);
+  }else{
+    $get_ratings = $wpdb->get_results( $wpdb->prepare( "SELECT rating_postid, rating_rating FROM {$wpdb->ratings} WHERE rating_userid = %d", $user_ID ) );
+    $out_ratings = array();
+    foreach($get_ratings as $rating){
+      $out_ratings[$rating->rating_postid] = $rating->rating_rating;
+    }
+    return $out_ratings;
+  }
 }
 
 
