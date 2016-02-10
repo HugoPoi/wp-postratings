@@ -1,0 +1,16 @@
+{
+  "name"       : "WP-PostRatings",
+  "description": "Adds an AJAX rating system for your WordPress site's content.",
+  "homepage"   : "https://wordpress.org/plugins/wp-postratings/",
+  "type"       : "wordpress-plugin",
+  "license"    : "GPL-2.0+",
+  "authors"    : [
+    {
+      "name"    : "Lester 'GaMerZ' Chan",
+      "homepage": "http://lesterchan.net"
+    }
+  ],
+  "require": {
+    "composer/installers": "~1.0"
+  }
+}
