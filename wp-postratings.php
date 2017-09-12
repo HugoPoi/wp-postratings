@@ -217,7 +217,9 @@ function get_the_ratings($custom_id = 0) {
     'ratings_users' => $post_ratings_users,
     'ratings_score' => $post_ratings_score,
     'ratings_average' => $post_ratings_average,
-    'rating_max' => intval(get_option('postratings_max'))
+    'rating_max' => intval(get_option('postratings_max')),
+    'ratings_text' => get_option('postratings_ratingstext'),
+    'ratings_value' => get_option('postratings_ratingsvalue')
   );
 
   if(!$user_voted && check_allowtorate()){
