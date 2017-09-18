@@ -572,7 +572,7 @@ function delete_ratings_fields($post_ID) {
 ### Function: Process Ratings
 add_action('wp_ajax_postratings', 'process_ratings');
 add_action('wp_ajax_nopriv_postratings', 'process_ratings');
-function process_ratings() {
+function process_ratings($exit = true) {
     global $wpdb, $user_identity, $user_ID;
 
     if(isset($_REQUEST['action']) && $_REQUEST['action'] == 'postratings')
@@ -584,7 +584,7 @@ function process_ratings() {
         if(!check_ajax_referer('postratings_'.$post_id.'-nonce', 'postratings_'.$post_id.'_nonce', false))
         {
             esc_html_e('Failed To Verify Referrer', 'wp-postratings');
-            exit();
+            if($exit) exit();
         }
 
         if($rate > 0 && $post_id > 0 && check_allowtorate()) {
@@ -644,14 +644,14 @@ function process_ratings() {
                     do_action('rate_post', $rate_userid, $post_id, $ratings_value[$rate-1]);
                     // Output AJAX Result
                     echo the_ratings_results($post_id, $post_ratings_users, $post_ratings_score, $post_ratings_average);
-                    exit();
+                    if($exit) exit();
                 } else {
                     printf(esc_html__('Invalid Post ID (#%s).', 'wp-postratings'), $post_id);
-                    exit();
+                    if($exit) exit();
                 } // End if($post)
             } else {
                 printf(esc_html__('You Had Already Rated This Post. Post ID #%s.', 'wp-postratings'), $post_id);
-                exit();
+                if($exit) exit();
             }// End if(!$rated)
         } // End if($rate && $post_id && check_allowtorate())
     } // End if(isset($_REQUEST['action']) && $_REQUEST['action'] == 'postratings')
